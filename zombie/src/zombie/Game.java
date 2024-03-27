@@ -4,7 +4,7 @@ import java.util.Random;
 import java.util.Scanner;
 
 abstract class Unit {
-	Random ran;
+	public Random ran;
 	
 	public int pos, hp, max;
 	
@@ -31,6 +31,10 @@ abstract class Unit {
 		return max;
 	}
 	
+	public void move() {
+		this.setPos(getPos() + 1);
+	}
+	
 	abstract void attack(Unit unit);
 }
 
@@ -46,22 +50,36 @@ class Hero extends Unit {
 		
 	}
 	
-	public void move() {
-		
+	public void recovery() {
+		if(recoveryCount > 0) {
+			this.setHp(this.getHp() + 50);
+			recoveryCount--;
+			System.out.printf("hp 충전 완료) 현재 hp는 %d입니다.\n", this.getHp());
+			
+		} else {
+			System.out.println("회복약을 모두 사용했습니다.");
+		}
 	}
 }
 
 class Zombie extends Unit {
+	int power;
+	
 	public Zombie(int pos, int hp, int max) {
 		super(pos, hp, max);
 	}
 	
-	public void attack(Unit unit) {
+	public void attack(Unit hero) {
+		int heroHp = hero.getHp();
+		int zombieHp = this.getHp();
 		
-	}
-	
-	public void move() {
+		power = ran.nextInt(max) + 1;
+		hero.setHp(hero.getHp() - power);
+		this.setHp(this.getHp() + power);
 		
+		System.out.printf("zombie가 %d의 power로 공격\n", power);
+		System.out.printf("hero의 hp : %d -> %d\n", heroHp, hero.getHp());
+		System.out.printf("zombie의 hp : %d -> %d\n", zombieHp, this.getHp());
 	}
 }
 
@@ -74,10 +92,6 @@ class Boss extends Unit {
 	}
 	
 	public void attack(Unit unit) {
-		
-	}
-	
-	public void move() {
 		
 	}
 }
