@@ -7,4 +7,4 @@
 ![diagram]()
 
 > Demo
-![link](https://github.com/onceuponatim9/zombie/blob/master/image/0327demo.gif?raw=true)
+![link](https://github.com/onceuponatim9/zombie/blob/master/image/0327demo_cut.gif?raw=true)
