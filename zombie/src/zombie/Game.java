@@ -5,18 +5,21 @@ import java.util.Scanner;
 public class Game {
 	Scanner scan = new Scanner(System.in);
 	
+	private final int SIZE = 20;
+	
 	Hero hero;
 	Zombie zombie;
 	Boss boss;
 	
-	int count;
+	int count = 1;
+	int win;
 	
 	private boolean isRun;
 	
 	private Game() {
 		hero = new Hero(1, 200, 20, 5);
-		zombie = new Zombie(5, 100, 10);
-		boss = new Boss(9, 300, 20, 10);
+		zombie = new Zombie(5, 50, 10);
+		boss = new Boss(SIZE - 2, 250, 20, 10);
 		isRun = true;
 	}
 	
@@ -39,11 +42,12 @@ public class Game {
 	}
 	
 	public boolean isRun() {
-		return hero.getPos() == 10 || !isRun ? false : true;
+		return hero.getPos() == SIZE || !isRun ? false : true;
 	}
 	
 	public void endMessage() {
-		System.out.printf("[%d/2]회 이겼습니다. 게임을 종료합니다.\n", count);
+		printPosition();
+		System.out.printf("[%d/%d]회 이겼습니다. 게임을 종료합니다.\n", win, count);
 	}
 	
 	public void playZombie() {
@@ -60,7 +64,9 @@ public class Game {
 	            
 			if(zombie.getHp() == 0) {
 				System.out.println("zombie를 이겼습니다.");
+				win++;
 				count++;
+				zombie = new Zombie(zombie.getPos() + 6, 50, 10);
 				break;
 			}
 			else if(hero.getHp() == 0) {
@@ -85,6 +91,7 @@ public class Game {
 			
 			if(boss.getHp() == 0) {
 				System.out.println("boss를 이겼습니다.");
+				win++;
 				count++;
 				break;
 			}
@@ -96,8 +103,12 @@ public class Game {
 		}
 	}
 	
-	public void play() {
+	public void printPosition() {
 		System.out.printf("현재 위치 : %d\n", hero.getPos());
+	}
+	
+	public void play() {
+		printPosition();
 		int select = inputNumber("앞으로 이동하기(1),종료하기(2)");
 		
 		if(select == 1) {
