@@ -1,5 +1,6 @@
 package zombie;
 
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Game {
@@ -9,24 +10,36 @@ public class Game {
 	private final int ZOMBIE = 1;
 	private final int BOSS = 2;
 	
-	Hero hero;
-	Zombie zombie;
-	Boss boss;
+	private String heroChar = new String(Character.toChars(0x1F436));
+	private String zombieChar = new String(Character.toChars(0x1F47B));
+	private String bossChar = new String(Character.toChars(0x1F981));
+	private String road = new String(Character.toChars(0x25FB));
+	private String winChar = new String(Character.toChars(0x1F337));
 	
-	int count = 4;
-	int win;
-	int enemy;
+	private Hero hero;
+	private Zombie zombie;
+	private Boss boss;
 	
-	private int[] enemyList;
+	private int count = 4;
+	private int win;
+	private int enemy;
+	
+	private ArrayList<Enemy> list;
 	
 	private boolean isRun;
 	
 	private Game() {
-		hero = new Hero(1, 200, 20, 5);
-		zombie = new Zombie(5, 50, 10);
-		boss = new Boss(SIZE - 2, 250, 20, 10);
+		hero = new Hero(1, 150, 30, 5);
+		zombie = new Zombie(5, 100, 30);
+		boss = new Boss(SIZE - 1, 200, 30, 10);
 		isRun = true;
-		enemyList = new int[SIZE];
+		list = new ArrayList<Enemy>();
+		setGame();
+	}
+	
+	private void setGame() {
+		for(int i = 0; i < SIZE; i++)
+			list.add(new Enemy(0, 0));
 	}
 	
 	private static Game instance = new Game();
@@ -58,38 +71,49 @@ public class Game {
 	
 	public void printMap() {
 		// 두 줄 : 윗줄은 hero, 아랫줄은 enemy
+		
 		for(int i = 1; i <= SIZE; i++) {
 			if(hero.getPos() == i)
-				System.out.printf("%2s", "★");
+				System.out.printf(" %s", heroChar);
 			else
-				System.out.printf("%2s", "〓");
+				System.out.printf("%2s", road);
 		}
 		System.out.println();
 		
 		for(int i = 1; i <= SIZE; i++) {
+			if(hero.getPos() == i && hero.getPos() == zombie.getPos())
+				System.out.printf(" %s", zombieChar);
+			else if(hero.getPos() == i && hero.getPos() == boss.getPos())
+				System.out.printf(" %s", bossChar);
+			else if(hero.getPos() >= i && list.get(i - 1).getEnemy() != 0)
+				System.out.printf("%s", winChar);
+			else
+				System.out.printf("%2s", road);
+		}
+		/*
+		for(int i = 1; i <= SIZE; i++) {
 //			if(hero.getPos() >= i && enemyList[i] == 0)
 //				System.out.printf("%2s", "▣");
-			if(hero.getPos() == i && (hero.getPos() == zombie.getPos() || hero.getPos() == boss.getPos()))
-			System.out.printf("%2s", "▣");
+			if(hero.getPos() == i && hero.getPos() == zombie.getPos())
+				System.out.printf(" %s", zombieChar);
+			else if(hero.getPos() == i && hero.getPos() == boss.getPos())
+				System.out.printf(" %s", bossChar);
 			else if(hero.getPos() >= i && enemyList[i - 1] != 0)
-				System.out.printf("%2s", "X");
+				System.out.printf("%s", winChar);
 			else
-				System.out.printf("%2s", "〓");
+				System.out.printf("%2s", road);
 //			if(hero.getPos() == i && (hero.getPos() == zombie.getPos() || hero.getPos() == boss.getPos()))
 //				System.out.printf("%2s", "▣");
 //			else
 //				System.out.printf("%2s", "〓");
 		}
+		*/
 		System.out.println();
 	}
 	
 	public void playZombie() {
-		count++;
-		boolean isWin;
-		
 		while(true) {
-			System.out.print("공격하기(1),포션마시기(2): ");
-			int sel = scan.nextInt();
+			int sel = inputNumber("공격하기(1),포션마시기(2)");
 			
 			if(sel == 1) {
 				zombie.attack(hero);
@@ -101,8 +125,7 @@ public class Game {
 			if(zombie.getHp() == 0) {
 				System.out.println("zombie를 이겼습니다.");
 				win++;
-				isWin = true;
-				setEnemyList(zombie.getPos(), isWin);
+				setEnemyList(zombie.getPos());
 				zombie = new Zombie(zombie.getPos() + 6, 50, 10);
 				break;
 			}
@@ -115,12 +138,8 @@ public class Game {
 	}
 	
 	public void playBoss() {
-		count++;
-		boolean isWin;
-		
 		while(true) {
-			System.out.print("공격하기(1),포션마시기(2): ");
-			int sel = scan.nextInt();
+			int sel = inputNumber("공격하기(1),포션마시기(2)");
 			
 			if(sel == 1) {
 				boss.attack(hero);
@@ -131,8 +150,7 @@ public class Game {
 			
 			if(boss.getHp() == 0) {
 				System.out.println("boss를 이겼습니다.");
-				isWin = true;
-				setEnemyList(boss.getPos(), isWin);
+				setEnemyList(boss.getPos());
 				win++;
 				break;
 			}
@@ -144,11 +162,10 @@ public class Game {
 		}
 	}
 	
-	public void setEnemyList(int enemyPos, boolean isWin) {
+	public void setEnemyList(int enemyPos) {
 		// enemyList에 enemy 위치 넣기
-		for(int i = 0; i < SIZE; i++)
-			if(i == enemyPos - 1 && isWin)
-				enemyList[i] = enemy;
+		Enemy e = new Enemy(enemyPos, enemy);
+		list.set(enemyPos - 1, e);
 	}
 	
 	public void printPosition() {
